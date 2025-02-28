@@ -429,15 +429,41 @@ static CDVWKInAppBrowser* instance = nil;
 - (void)webView:(WKWebView *)theWebView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
     NSURL* url = navigationAction.request.URL;
-    NSLog(@"[InAppBrowser DEBUG] decidePolicyForNavigationAction - URL: %@", url);
-    NSLog(@"[InAppBrowser DEBUG] Navigation Type: %ld", (long)navigationAction.navigationType);
-    NSLog(@"[InAppBrowser DEBUG] Is Main Frame: %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
+    NSString* navTypeString;
+    switch (navigationAction.navigationType) {
+        case WKNavigationTypeLinkActivated:
+            navTypeString = @"LinkActivated";
+            break;
+        case WKNavigationTypeFormSubmitted:
+            navTypeString = @"FormSubmitted";
+            break;
+        case WKNavigationTypeBackForward:
+            navTypeString = @"BackForward";
+            break;
+        case WKNavigationTypeReload:
+            navTypeString = @"Reload";
+            break;
+        case WKNavigationTypeFormResubmitted:
+            navTypeString = @"FormResubmitted";
+            break;
+        case WKNavigationTypeOther:
+            navTypeString = @"Other";
+            break;
+        default:
+            navTypeString = @"Unknown";
+    }
+    
+    NSLog(@"[InAppBrowser URL DEBUG] ⬇️ Navigation Request ⬇️");
+    NSLog(@"[InAppBrowser URL DEBUG] URL: %@", url);
+    NSLog(@"[InAppBrowser URL DEBUG] Type: %@", navTypeString);
+    NSLog(@"[InAppBrowser URL DEBUG] Method: %@", navigationAction.request.HTTPMethod);
+    NSLog(@"[InAppBrowser URL DEBUG] Target Frame Main: %@", navigationAction.targetFrame.isMainFrame ? @"YES" : @"NO");
+    NSLog(@"[InAppBrowser URL DEBUG] Has Target Frame: %@", navigationAction.targetFrame ? @"YES" : @"NO");
     
     NSURL* mainDocumentURL = navigationAction.request.mainDocumentURL;
     BOOL isTopLevelNavigation = [url isEqual:mainDocumentURL];
     BOOL shouldStart = YES;
     BOOL useBeforeLoad = NO;
-    NSString* httpMethod = navigationAction.request.HTTPMethod;
     NSString* errorMessage = nil;
     
     if([_beforeload isEqualToString:@"post"]){
@@ -446,7 +472,7 @@ static CDVWKInAppBrowser* instance = nil;
     }
     else if(isTopLevelNavigation && (
            [_beforeload isEqualToString:@"yes"]
-       || ([_beforeload isEqualToString:@"get"] && [httpMethod isEqualToString:@"GET"])
+       || ([_beforeload isEqualToString:@"get"] && [navigationAction.request.HTTPMethod isEqualToString:@"GET"])
     // TODO comment in when POST requests are handled
     // || ([_beforeload isEqualToString:@"post"] && [httpMethod isEqualToString:@"POST"])
     )){
