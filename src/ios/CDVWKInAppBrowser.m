@@ -677,6 +677,10 @@ BOOL isExiting = FALSE;
     
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
     
+    // Add these configurations
+    configuration.preferences.javaScriptEnabled = YES;
+    configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;  // Allow popups
+    
     NSString *userAgent = configuration.applicationNameForUserAgent;
     if (
         [self settingForKey:@"OverrideUserAgent"] == nil &&
@@ -719,6 +723,9 @@ BOOL isExiting = FALSE;
     
 
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
+    
+    // Add this configuration after webView creation
+    self.webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;
     
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
