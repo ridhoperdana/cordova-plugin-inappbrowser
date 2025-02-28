@@ -686,10 +686,10 @@ BOOL isExiting = FALSE;
     }
     
     // Add custom user agent if specified in browserOptions
-    if (_browserOptions.useragent) {
-        userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, _browserOptions.useragent];
-        NSLog(@"[InAppBrowser] Setting combined User Agent: %@", userAgent);
-    }
+    // if (_browserOptions.useragent) {
+    //     userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, _browserOptions.useragent];
+    //     NSLog(@"[InAppBrowser] Setting combined User Agent: %@", userAgent);
+    // }
     
     configuration.applicationNameForUserAgent = userAgent;
     configuration.userContentController = userContentController;
