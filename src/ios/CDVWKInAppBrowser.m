@@ -428,6 +428,10 @@ static CDVWKInAppBrowser* instance = nil;
  */
 - (void)webView:(WKWebView *)theWebView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
+    // Add this at the start of the method
+    NSLog(@"[InAppBrowser Delegate] Current UIDelegate: %@", theWebView.UIDelegate);
+    NSLog(@"[InAppBrowser Delegate] Current NavigationDelegate: %@", theWebView.navigationDelegate);
+    
     NSURL* url = navigationAction.request.URL;
     NSString* navTypeString;
     switch (navigationAction.navigationType) {
@@ -764,9 +768,18 @@ BOOL isExiting = FALSE;
     
 
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
+    
+    // Add this debug log
+    NSLog(@"[InAppBrowser Setup] Creating WebView");
+    
+    // Make sure delegates are properly set
     self.webView.UIDelegate = self;
     self.webView.navigationDelegate = self;
     
+    // Verify delegate connections
+    NSLog(@"[InAppBrowser Setup] UIDelegate set: %@", self.webView.UIDelegate ? @"YES" : @"NO");
+    NSLog(@"[InAppBrowser Setup] NavigationDelegate set: %@", self.webView.navigationDelegate ? @"YES" : @"NO");
+
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
     
