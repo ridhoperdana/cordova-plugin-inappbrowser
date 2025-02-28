@@ -685,12 +685,6 @@ BOOL isExiting = FALSE;
         userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, [self settingForKey:@"AppendUserAgent"]];
     }
     
-    // Add custom user agent if specified in browserOptions
-    // if (_browserOptions.useragent) {
-    //     userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, _browserOptions.useragent];
-    //     NSLog(@"[InAppBrowser] Setting combined User Agent: %@", userAgent);
-    // }
-    
     configuration.applicationNameForUserAgent = userAgent;
     configuration.userContentController = userContentController;
 #if __has_include(<Cordova/CDVWebViewProcessPoolFactory.h>)
@@ -733,9 +727,6 @@ BOOL isExiting = FALSE;
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self.webViewUIDelegate;
     self.webView.backgroundColor = [UIColor whiteColor];
-    // if ([self settingForKey:@"OverrideUserAgent"] != nil) {
-    //     self.webView.customUserAgent = [self settingForKey:@"OverrideUserAgent"];
-    // }
     
     self.webView.clearsContextBeforeDrawing = YES;
     self.webView.clipsToBounds = YES;
