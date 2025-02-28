@@ -429,6 +429,10 @@ static CDVWKInAppBrowser* instance = nil;
 - (void)webView:(WKWebView *)theWebView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
     NSURL* url = navigationAction.request.URL;
+    NSLog(@"[InAppBrowser DEBUG] decidePolicyForNavigationAction - URL: %@", url);
+    NSLog(@"[InAppBrowser DEBUG] Navigation Type: %ld", (long)navigationAction.navigationType);
+    NSLog(@"[InAppBrowser DEBUG] Is Main Frame: %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
+    
     NSURL* mainDocumentURL = navigationAction.request.mainDocumentURL;
     BOOL isTopLevelNavigation = [url isEqual:mainDocumentURL];
     BOOL shouldStart = YES;
@@ -541,12 +545,15 @@ static CDVWKInAppBrowser* instance = nil;
 
 - (void)didStartProvisionalNavigation:(WKWebView*)theWebView
 {
-    NSLog(@"didStartProvisionalNavigation");
+    NSLog(@"[InAppBrowser DEBUG] didStartProvisionalNavigation");
+    NSLog(@"[InAppBrowser DEBUG] Current URL: %@", theWebView.URL);
 //    self.inAppBrowserViewController.currentURL = theWebView.URL;
 }
 
 - (void)didFinishNavigation:(WKWebView*)theWebView
 {
+    NSLog(@"[InAppBrowser DEBUG] didFinishNavigation");
+    NSLog(@"[InAppBrowser DEBUG] Final URL: %@", theWebView.URL);
     if (self.callbackId != nil) {
         NSString* url = [theWebView.URL absoluteString];
         if(url == nil){
@@ -566,6 +573,8 @@ static CDVWKInAppBrowser* instance = nil;
 
 - (void)webView:(WKWebView*)theWebView didFailNavigation:(NSError*)error
 {
+    NSLog(@"[InAppBrowser DEBUG] webView:%@ - %ld: %@", @"didFailNavigation", (long)error.code, [error localizedDescription]);
+    
     if (self.callbackId != nil) {
         NSString* url = [theWebView.URL absoluteString];
         if(url == nil){
@@ -622,12 +631,12 @@ static CDVWKInAppBrowser* instance = nil;
 
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    NSLog(@"[InAppBrowser] Popup requested - URL: %@", navigationAction.request.URL);
-    NSLog(@"[InAppBrowser] Main frame? %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
+    NSLog(@"[InAppBrowser DEBUG] createWebView called");
+    NSLog(@"[InAppBrowser DEBUG] Popup URL: %@", navigationAction.request.URL);
+    NSLog(@"[InAppBrowser DEBUG] Is Main Frame: %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
     
-    // Instead of opening externally, load in the same webview
     if (!navigationAction.targetFrame.isMainFrame) {
-        NSLog(@"[InAppBrowser] Loading popup content in main webview");
+        NSLog(@"[InAppBrowser DEBUG] Attempting to load popup in main webview");
         [webView loadRequest:navigationAction.request];
     }
     
