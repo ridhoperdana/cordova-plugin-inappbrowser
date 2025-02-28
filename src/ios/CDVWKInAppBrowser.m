@@ -682,6 +682,13 @@ BOOL isExiting = FALSE;
         ) {
         userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, [self settingForKey:@"AppendUserAgent"]];
     }
+    
+    // Add custom user agent if specified in browserOptions
+    if (_browserOptions.useragent) {
+        userAgent = [NSString stringWithFormat:@"%@ %@", userAgent, _browserOptions.useragent];
+        NSLog(@"[InAppBrowser] Setting combined User Agent: %@", userAgent);
+    }
+    
     configuration.applicationNameForUserAgent = userAgent;
     configuration.userContentController = userContentController;
 #if __has_include(<Cordova/CDVWebViewProcessPoolFactory.h>)
