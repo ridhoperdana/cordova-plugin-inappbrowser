@@ -656,9 +656,6 @@ static CDVWKInAppBrowser* instance = nil;
 
 #pragma mark CDVWKInAppBrowserViewController
 
-@interface CDVWKInAppBrowserViewController : UIViewController <WKUIDelegate, WKNavigationDelegate>
-@end
-
 @implementation CDVWKInAppBrowserViewController
 
 @synthesize currentURL;
