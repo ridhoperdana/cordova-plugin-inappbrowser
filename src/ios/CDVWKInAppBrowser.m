@@ -755,18 +755,17 @@ BOOL isExiting = FALSE;
     
 
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
-    
-    // Add this debug log
-    NSLog(@"[InAppBrowser Setup] Creating WebView");
-    
-    // Make sure delegates are properly set
+    NSLog(@"[InAppBrowser DELEGATE] Initial setup");
     self.webView.UIDelegate = self;
     self.webView.navigationDelegate = self;
     
-    // Verify delegate connections
-    NSLog(@"[InAppBrowser Setup] UIDelegate set: %@", self.webView.UIDelegate ? @"YES" : @"NO");
-    NSLog(@"[InAppBrowser Setup] NavigationDelegate set: %@", self.webView.navigationDelegate ? @"YES" : @"NO");
-
+    // Add periodic delegate check
+    [NSTimer scheduledTimerWithTimeInterval:1.0
+                                   repeats:YES
+                                     block:^(NSTimer *timer) {
+        NSLog(@"[InAppBrowser DELEGATE] Periodic check - NavigationDelegate: %@", self.webView.navigationDelegate ? @"SET" : @"CLEARED");
+    }];
+    
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
     
