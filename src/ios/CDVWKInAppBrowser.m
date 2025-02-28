@@ -622,15 +622,14 @@ static CDVWKInAppBrowser* instance = nil;
 
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    NSLog(@"[InAppBrowser] Creating new window for URL: %@", navigationAction.request.URL);
+    NSLog(@"[InAppBrowser] Popup requested - URL: %@", navigationAction.request.URL);
+    NSLog(@"[InAppBrowser] Main frame? %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
+    NSLog(@"[InAppBrowser] Frame name: %@", navigationAction.targetFrame.name);
     
+    // Instead of opening externally, load in the same webview
     if (!navigationAction.targetFrame.isMainFrame) {
-        // Handle popup
-        if (@available(iOS 10.0, *)) {
-            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:@{} completionHandler:nil];
-        } else {
-            [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
-        }
+        NSLog(@"[InAppBrowser] Loading popup content in main webview");
+        [webView loadRequest:navigationAction.request];
     }
     
     return nil;
