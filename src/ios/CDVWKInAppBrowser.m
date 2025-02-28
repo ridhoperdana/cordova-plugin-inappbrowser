@@ -428,43 +428,30 @@ static CDVWKInAppBrowser* instance = nil;
  */
 - (void)webView:(WKWebView *)theWebView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
-    // Add this at the start of the method
-    NSLog(@"[InAppBrowser Delegate] Current UIDelegate: %@", theWebView.UIDelegate);
-    NSLog(@"[InAppBrowser Delegate] Current NavigationDelegate: %@", theWebView.navigationDelegate);
-    
     NSURL* url = navigationAction.request.URL;
-    NSString* navTypeString;
-    switch (navigationAction.navigationType) {
-        case WKNavigationTypeLinkActivated:
-            navTypeString = @"LinkActivated";
-            break;
-        case WKNavigationTypeFormSubmitted:
-            navTypeString = @"FormSubmitted";
-            break;
-        case WKNavigationTypeBackForward:
-            navTypeString = @"BackForward";
-            break;
-        case WKNavigationTypeReload:
-            navTypeString = @"Reload";
-            break;
-        case WKNavigationTypeFormResubmitted:
-            navTypeString = @"FormResubmitted";
-            break;
-        case WKNavigationTypeOther:
-            navTypeString = @"Other";
-            break;
-        default:
-            navTypeString = @"Unknown";
-    }
+    NSURL* mainDocumentURL = navigationAction.request.mainDocumentURL;
     
     NSLog(@"[InAppBrowser URL DEBUG] ⬇️ Navigation Request ⬇️");
     NSLog(@"[InAppBrowser URL DEBUG] URL: %@", url);
-    NSLog(@"[InAppBrowser URL DEBUG] Type: %@", navTypeString);
+    NSLog(@"[InAppBrowser URL DEBUG] Main Document URL: %@", mainDocumentURL);
+    NSLog(@"[InAppBrowser URL DEBUG] Type: %@", navigationAction.navigationType == WKNavigationTypeOther ? @"Other" : @"User Action");
     NSLog(@"[InAppBrowser URL DEBUG] Method: %@", navigationAction.request.HTTPMethod);
     NSLog(@"[InAppBrowser URL DEBUG] Target Frame Main: %@", navigationAction.targetFrame.isMainFrame ? @"YES" : @"NO");
     NSLog(@"[InAppBrowser URL DEBUG] Has Target Frame: %@", navigationAction.targetFrame ? @"YES" : @"NO");
     
-    NSURL* mainDocumentURL = navigationAction.request.mainDocumentURL;
+    // Check if this is a window.open() request
+    if (!navigationAction.targetFrame) {
+        NSLog(@"[InAppBrowser URL DEBUG] 🔵 Detected potential popup - loading in current view");
+        [theWebView loadRequest:navigationAction.request];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    // Check if this is a special scheme (like app-specific schemes)
+    if (![url.scheme hasPrefix:@"http"] && ![url.scheme hasPrefix:@"https"] && ![url.scheme hasPrefix:@"file"]) {
+        NSLog(@"[InAppBrowser URL DEBUG] 🔵 Custom scheme detected: %@", url.scheme);
+    }
+    
     BOOL isTopLevelNavigation = [url isEqual:mainDocumentURL];
     BOOL shouldStart = YES;
     BOOL useBeforeLoad = NO;
