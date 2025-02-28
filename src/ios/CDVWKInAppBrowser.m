@@ -624,7 +624,6 @@ static CDVWKInAppBrowser* instance = nil;
 {
     NSLog(@"[InAppBrowser] Popup requested - URL: %@", navigationAction.request.URL);
     NSLog(@"[InAppBrowser] Main frame? %@", navigationAction.targetFrame.isMainFrame ? @"Yes" : @"No");
-    NSLog(@"[InAppBrowser] Frame name: %@", navigationAction.targetFrame.name);
     
     // Instead of opening externally, load in the same webview
     if (!navigationAction.targetFrame.isMainFrame) {
