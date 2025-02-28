@@ -636,11 +636,27 @@ static CDVWKInAppBrowser* instance = nil;
     _previousStatusBarStyle = -1; // this value was reset before reapplying it. caused statusbar to stay black on ios7
 }
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    NSLog(@"[InAppBrowser] Creating new window for URL: %@", navigationAction.request.URL);
+    
+    if (!navigationAction.targetFrame.isMainFrame) {
+        // Handle popup
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:@{} completionHandler:nil];
+        } else {
+            [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+        }
+    }
+    
+    return nil;
+}
+
 @end //CDVWKInAppBrowser
 
 #pragma mark CDVWKInAppBrowserViewController
 
-@implementation CDVWKInAppBrowserViewController
+@implementation CDVWKInAppBrowserViewController : UIViewController <WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler>
 
 @synthesize currentURL;
 
@@ -676,10 +692,18 @@ BOOL isExiting = FALSE;
     WKUserContentController* userContentController = [[WKUserContentController alloc] init];
     
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+    WKPreferences* preferences = [[WKPreferences alloc] init];
+    preferences.javaScriptEnabled = YES;
+    preferences.javaScriptCanOpenWindowsAutomatically = YES;
     
-    // Add these configurations
-    configuration.preferences.javaScriptEnabled = YES;
-    configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;  // Allow popups
+    if (@available(iOS 13.0, *)) {
+        WKWebpagePreferences* webpagePreferences = [[WKWebpagePreferences alloc] init];
+        webpagePreferences.allowsContentJavaScript = YES;
+        configuration.defaultWebpagePreferences = webpagePreferences;
+    }
+    
+    configuration.preferences = preferences;
+    configuration.allowsInlineMediaPlayback = YES;
     
     NSString *userAgent = configuration.applicationNameForUserAgent;
     if (
@@ -723,16 +747,13 @@ BOOL isExiting = FALSE;
     
 
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
-    
-    // Add this configuration after webView creation
-    self.webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;
+    self.webView.UIDelegate = self;
+    self.webView.navigationDelegate = self;
     
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
     
     
-    self.webView.navigationDelegate = self;
-    self.webView.UIDelegate = self.webViewUIDelegate;
     self.webView.backgroundColor = [UIColor whiteColor];
     
     self.webView.clearsContextBeforeDrawing = YES;
