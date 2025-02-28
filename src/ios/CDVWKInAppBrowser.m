@@ -733,9 +733,9 @@ BOOL isExiting = FALSE;
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self.webViewUIDelegate;
     self.webView.backgroundColor = [UIColor whiteColor];
-    if ([self settingForKey:@"OverrideUserAgent"] != nil) {
-        self.webView.customUserAgent = [self settingForKey:@"OverrideUserAgent"];
-    }
+    // if ([self settingForKey:@"OverrideUserAgent"] != nil) {
+    //     self.webView.customUserAgent = [self settingForKey:@"OverrideUserAgent"];
+    // }
     
     self.webView.clearsContextBeforeDrawing = YES;
     self.webView.clipsToBounds = YES;
