@@ -522,6 +522,15 @@ static CDVWKInAppBrowser* instance = nil;
     }
 }
 
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+    NSLog(@"[InAppBrowser RESPONSE] ⬇️ Navigation Response ⬇️");
+    NSLog(@"[InAppBrowser RESPONSE] URL: %@", navigationResponse.response.URL);
+    NSLog(@"[InAppBrowser RESPONSE] MIME Type: %@", navigationResponse.response.MIMEType);
+    NSLog(@"[InAppBrowser RESPONSE] Status Code: %ld", (long)((NSHTTPURLResponse *)navigationResponse.response).statusCode);
+    
+    decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
 #pragma mark WKScriptMessageHandler delegate
 - (void)userContentController:(nonnull WKUserContentController *)userContentController didReceiveScriptMessage:(nonnull WKScriptMessage *)message {
     
@@ -1180,9 +1189,15 @@ BOOL isExiting = FALSE;
 - (void)webView:(WKWebView *)theWebView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *url = navigationAction.request.URL;
-    NSURL *mainDocumentURL = navigationAction.request.mainDocumentURL;
+    NSLog(@"[InAppBrowser ACTION] ⬇️ Navigation Action ⬇️");
+    NSLog(@"[InAppBrowser ACTION] URL: %@", url);
+    NSLog(@"[InAppBrowser ACTION] JavaScript window.open?: %@", !navigationAction.targetFrame ? @"YES" : @"NO");
     
-    BOOL isTopLevelNavigation = [url isEqual:mainDocumentURL];
+    // Print all headers for debugging
+    NSDictionary *headers = navigationAction.request.allHTTPHeaderFields;
+    NSLog(@"[InAppBrowser ACTION] Headers: %@", headers);
+    
+    BOOL isTopLevelNavigation = [url isEqual:navigationAction.request.mainDocumentURL];
     
     if (isTopLevelNavigation) {
         self.currentURL = url;
