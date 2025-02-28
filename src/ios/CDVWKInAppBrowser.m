@@ -143,10 +143,12 @@ static CDVWKInAppBrowser* instance = nil;
         // Configure User Agent if specified
         if (browserOptions.useragent) {
             NSLog(@"[InAppBrowser] Attempting to set User Agent to: %@", browserOptions.useragent);
-            self.inAppBrowserViewController.webView.customUserAgent = browserOptions.useragent;
-            // Verify the user agent was set
+            // Get the default user agent first
             [self.inAppBrowserViewController.webView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id result, NSError *error) {
-                NSLog(@"[InAppBrowser] Current User Agent: %@", result);
+                NSString* defaultUserAgent = (NSString*)result;
+                NSString* customUserAgent = [NSString stringWithFormat:@"%@ %@", defaultUserAgent, browserOptions.useragent];
+                self.inAppBrowserViewController.webView.customUserAgent = customUserAgent;
+                NSLog(@"[InAppBrowser] Combined User Agent: %@", customUserAgent);
             }];
         }
     }
